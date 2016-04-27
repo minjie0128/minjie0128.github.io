@@ -229,6 +229,139 @@
             
               
                 
+                <a class="post-title-link" href="/2016/04/27/ADB-学习总结/" itemprop="url">
+                  ADB 学习总结
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-04-27T16:39:10+08:00" content="2016-04-27">
+              2016-04-27
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/27/ADB-学习总结/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/27/ADB-学习总结/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>ADB 全称是Android Debug Bridge，android设备和模拟器是通过ADB来和PC机进行通信的，可以认为ADB是2者之间通信的桥梁。ADB采用的是cs模式来进行数据通信。</p>
+<h2 id="ADB-有三个部分组成"><a href="#ADB-有三个部分组成" class="headerlink" title="ADB 有三个部分组成"></a>ADB 有三个部分组成</h2><ol>
+<li>ADB客户端（DDMS）</li>
+<li>ADB服务（运行在PC主机上 端口号5037）</li>
+<li>adbd 守护服务（运行在模拟器或者android设备上)</li>
+</ol>
+<p><img src="http://77fzym.com1.z0.glb.clouddn.com/%E4%B8%8B%E8%BD%BD.png" alt="http://77fzym.com1.z0.glb.clouddn.com/%E4%B8%8B%E8%BD%BD.png"></p>
+<p>当用户开始一个ADB客户端程序时，客户端首先会检查是否已经有一个 ADB 服务进程在运行，如果没有，它会启动一个服务进程；服务进程启动后，会与一个本地TCP端口5037进行绑定，并监听从ADB客户端发送过来的命令（所有的客户端都使用端口5037与服务进程进行通信）。</p>
+<p>接着，服务端进程会配置所有正在运行的模拟器或者设备的链接：通过扫描5555 - 5585（模拟器/设备使用的端口范围）之间的奇数端口，服务端进程可以找到相应的模拟器/设备，接着找到相应的ADB守护进程，并对该端口进行配置。注意，每个模拟器/设备都需要一对连续的端口 - 奇数端口号用于ADB连接，偶数端口号用于控制台连接。</p>
+<h2 id="Android设备ADB授权的原理"><a href="#Android设备ADB授权的原理" class="headerlink" title="Android设备ADB授权的原理"></a>Android设备ADB授权的原理</h2><p>用ADB调试Android设备时，首次连接时，会出现一个授权提示：</p>
+<blockquote>
+<p>error: device unauthorized. Please check the confirmation dialog on your device.</p>
+</blockquote>
+<p>这时候，正常情况下，在手机上会出现一个提示框，让用户确认是否授权这个PC设备允许调试，你只需要点击确认就可以了！</p>
+<p><strong>工作原理是什么？</strong></p>
+<p>在PC机上首次启动 ADB.exe进程时，ADB会在C盘的当前用户的目录下生成一个”.android”目录，生成一对密钥ADBkey(私钥)与ADBkey.pub(公钥)就存放在这个目录下。在电脑初次通过ADB和android设备通信的时候，PC端会把公钥(或者公钥的hash值)(fingerprint)发送给android设备，该公钥存放在android设备的”/data/misc/ADB/“目录下。当android设备的”/data/misc/ADB/“目录下已经存在该公钥时，就不发送这个文件，如果android设备没有这个文件的时候，就会发送PC上的公钥到android设备上的”/data/misc/ADB/“目录下，则会弹出提示框，让你确认是否允许这台机器进行ADB连接，当你点击了允许授权之后，android就会保存了这台PC的ADBkey.pub(公钥)；</p>
+<p>参考 <a href="http://blog.csdn.net/sowhat_ah/article/details/43307907" target="_blank" rel="external">http://blog.csdn.net/sowhat_ah/article/details/43307907</a></p>
+<h2 id="ADB常用命令"><a href="#ADB常用命令" class="headerlink" title="ADB常用命令"></a>ADB常用命令</h2><blockquote>
+<p>查看已连接的设备<br>  adb devices</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>安装软件<br>adb install <path_to_apk></path_to_apk></p>
+</blockquote>
+<hr>
+<blockquote>
+<p>拷贝文档到手机或者模拟器<br>adb push foo.txt /sdcard/foo.txt</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>拷贝手机文件至电脑上<br>adb pull <remote> <local></local></remote></p>
+</blockquote>
+<hr>
+
+          
+        
+      
+    </div>
+    
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/04/26/Binder的相关知识点/" itemprop="url">
                   Binder的相关知识点
                 </a>
@@ -621,7 +754,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
