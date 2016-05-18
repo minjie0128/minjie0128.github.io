@@ -229,6 +229,191 @@
             
               
                 
+                <a class="post-title-link" href="/2016/05/18/Groovy学习笔记/" itemprop="url">
+                  Groovy学习笔记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-18T22:24:30+08:00" content="2016-05-18">
+              2016-05-18
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/05/18/Groovy学习笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/18/Groovy学习笔记/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>Groovy是一中运行在jvm上的动态语言<br>Groovy注释标记和Java一样，支持//或者/**/<br>Groovy语句可以不用分号结尾。Groovy为了尽量减少代码的输入，确实煞费苦心<br>Groovy中支持动态类型，即定义变量的时候可以不指定其类型。Groovy中，变量定义可以使用关键字def。注意，虽然def不是必须的，但是为了代码清晰，建议还是使用def关键字</p>
+<pre><code>def variable1 = 1   //可以不使用分号结尾 
+def  int x = 1  //变量定义时，也可以直接指定类型
+</code></pre><p>当变量没有def等任何定义时，该变量全局有效。类似于javascript中的不用var定义的变量。</p>
+<p>函数定义时，参数的类型也可以不指定。比如</p>
+<pre><code>String testFunction(arg1,arg2){//无需指定参数类型
+  ...
+}
+</code></pre><p>除了变量定义可以不指定类型外，Groovy中函数的返回值也可以是无类型的。比如：<br><strong>无类型的函数定义，必须使用def关键字</strong></p>
+<pre><code>def  nonReturnTypeFunc(){
+    last_line   //最后一行代码的执行结果就是本函数的返回值
+}
+</code></pre><p>如果指定了函数返回类型，则可不必加def关键字来定义函数</p>
+<pre><code>String getString(){
+   return&quot;I am a string&quot;
+}
+</code></pre><p>其实，所谓的无返回类型的函数，我估计内部都是按返回Object类型来处理的。毕竟，Groovy是基于Java的，而且最终会转成Java Code运行在JVM上</p>
+<h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><p>1  单引号’’中的内容严格对应Java中的String，不对$符号进行转义  </p>
+<pre><code>defsingleQuote=&apos;I am $ dolloar&apos;  //输出就是I am $ dolloar
+</code></pre><p>2  双引号””的内容则和脚本语言的处理有点像，如果字符中有$号的话，则它会$表达式先求值。  </p>
+<pre><code>defdoubleQuoteWithoutDollar = &quot;I am one dollar&quot; //输出 I am one dollar  
+def x = 1  
+defdoubleQuoteWithDollar = &quot;I am $x dolloar&quot; //输出I am 1 dolloar  
+</code></pre><p>3 三个引号’’’xxx’’’中的字符串支持随意换行 比如  </p>
+<pre><code>defmultieLines = &apos;&apos;&apos; begin  
+     line  1  
+     line  2  
+     end &apos;&apos;&apos;
+</code></pre><p>最后，除了每行代码不用加分号外，Groovy中函数调用的时候还可以不加括号。比如：  </p>
+<pre><code>println(&quot;test&quot;) ---&gt; println&quot;test&quot;  
+</code></pre><p>调用函数要不要带括号，我个人意见是如果这个函数是Groovy API或者Gradle API中比较常用的，比如println，就可以不带括号。否则还是带括号。</p>
+<h2 id="Groovy中的数据类型"><a href="#Groovy中的数据类型" class="headerlink" title="Groovy中的数据类型"></a>Groovy中的数据类型</h2><h3 id="基本数据类型"><a href="#基本数据类型" class="headerlink" title="基本数据类型"></a>基本数据类型</h3><p>作为动态语言，Groovy世界中的所有事物都是对象。所以，int，boolean这些Java中的基本数据类型，在Groovy代码中其实对应的是它们的包装数据类型。比如int对应为Integer，boolean对应为Boolean。</p>
+<h3 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h3><ul>
+<li>闭包中最后一行语句，表示该闭包的返回值，不论该语句是否冠名return关键字</li>
+</ul>
+<pre><code>def aClosure = {//闭包是一段代码，所以需要用花括号括起来..
+Stringparam1, int param2 -&gt;  //这个箭头很关键。箭头前面是参数定义，箭头后面是代码
+println&quot;this is code&quot; //这是代码，最后一句是返回值，
+//也可以使用return，和Groovy中普通函数一样
+}
+</code></pre><p>闭包的调用</p>
+<pre><code>aClosure(&quot;this is string&quot;, 100)  
+</code></pre><ul>
+<li>调用闭包的方法等于创建一个闭包实例。对于相同闭包创建出来的不同实例，他们的对象是不同的</li>
+</ul>
+<pre><code>v1 = c()  
+v2 = c()  
+assert v1 != v2  
+</code></pre><ul>
+<li>如果闭包没定义参数的话，则隐含有一个参数，这个参数名字叫it。</li>
+</ul>
+<p>比如：</p>
+<pre><code>def greeting = { &quot;Hello, $it!&quot; }
+
+assert greeting(&apos;Patrick&apos;) == &apos;Hello, Patrick!&apos;
+等同于：
+def greeting = { it -&gt; &quot;Hello, $it!&quot;}
+assert greeting(&apos;Patrick&apos;) == &apos;Hello, Patrick!&apos;
+但是，如果在闭包定义时，采用下面这种写法，则表示闭包没有参数！
+def noParamClosure = { -&gt; true }
+这个时候，我们就不能给noParamClosure传参数了！
+noParamClosure (&quot;test&quot;)  &lt;==报错喔！
+</code></pre><ul>
+<li>省略圆括号</li>
+</ul>
+<p>Groovy中，当函数的最后一个参数是闭包的话，在调用该函数的时候可以把闭包拿到圆括号的外面<br>比如  </p>
+<pre><code>def testClosure(int a1,String b1, Closure closure){  
+     closure() //调用闭包  
+}  
+//那么调用的时候，就可以免括号！  
+testClosure (4, &quot;test&quot;）{  
+   println&quot;i am in closure&quot;  
+} 
+</code></pre><p>如果函数中只有一个参数，且该参数是闭包类型的话，在调用该函数的时候可以省略圆括号</p>
+<pre><code>doLast{
+    println &quot;Hello Word&quot;
+}
+//等同于
+doLast({
+    println &quot;Hello Word&quot;
+})
+</code></pre><p><strong>省略圆括号使得代码简洁，看起来更像脚本语言</strong></p>
+<h2 id="Groovy脚步的运行原理"><a href="#Groovy脚步的运行原理" class="headerlink" title="Groovy脚步的运行原理"></a>Groovy脚步的运行原理</h2><p>Groovy和java一样，都是运行于jvm上的语言。所以Groovy语言在编译时，会被编译成jvm识别的classs文件。</p>
+<p><img src="http://img.blog.csdn.net/20150905192824392?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>参考  <a href="http://blog.csdn.net/innost/article/details/48228651" target="_blank" rel="external">http://blog.csdn.net/innost/article/details/48228651</a></p>
+
+          
+        
+      
+    </div>
+    
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/05/05/java-动态代理学习/" itemprop="url">
                   Java 动态代理学习
                 </a>
@@ -307,8 +492,7 @@ public class MyGenerator {
 }  
 </code></pre><p>通过JD-gui反编译工具打开Programmer.class 可以看到以下代码：</p>
 <p><img src="http://77fzym.com1.z0.glb.clouddn.com/a.png" alt=""></p>
-<p><strong>动态代理的内部实现</strong></p>
-<p>动态代理就是根据代理类实现的接口来动态生成class文件，然后根据这个class文件动态生成代理对象。</p>
+<h3 id="动态代理的内部实现"><a href="#动态代理的内部实现" class="headerlink" title="动态代理的内部实现"></a>动态代理的内部实现</h3><p>动态代理就是根据代理类实现的接口来动态生成class文件，然后根据这个class文件动态生成代理对象。</p>
 <p>生成动态代理类的字节码并且保存到硬盘中：</p>
 <p>JDK提供了<strong>sun.misc.ProxyGenerator.generateProxyClass(String proxyName,class[] interfaces)</strong> 底层方法来产生动态代理类的字节码：</p>
 <p>下面定义了一个工具类，用来将生成的动态代理类保存到硬盘中：</p>
@@ -1012,7 +1196,7 @@ public final class ProxySubject extends Proxy  implements Subject
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
