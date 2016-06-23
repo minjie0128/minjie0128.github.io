@@ -280,10 +280,10 @@
       
         
           
-            <p>sleep()<br>sleep()方法是类方法,也就是对当前线程而言的,程序员不能指定某个线程去sleep,只能是当前线程执行到sleep()方法时,睡眠指定的时间(让其它线程运行).事实上也只能是类方法,在当前线程上调用.试想如果你调用一个线程对象的sleep()方法,那么这个对象对应的线程如果不是正在运行,它如何sleep()?</p>
+            <h3 id="sleep"><a href="#sleep" class="headerlink" title="sleep()"></a>sleep()</h3><p>sleep()方法是类方法,也就是对当前线程而言的,程序员不能指定某个线程去sleep,只能是当前线程执行到sleep()方法时,睡眠指定的时间(让其它线程运行).事实上也只能是类方法,在当前线程上调用.试想如果你调用一个线程对象的sleep()方法,那么这个对象对应的线程如果不是正在运行,它如何sleep()?</p>
 <p>所以只有当前线程,才能保证它可以调用sleep()方法，因为它正在执行。</p>
 <p>调用sleep()的线程不会释放当前所获得的锁对象。</p>
-<h3 id="yield"><a href="#yield" class="headerlink" title="yield()"></a>yield()</h3><p>yield()方法也是类方法,只在当前线程上调用,理由同上,它主是让当前线程放弃本次分配到的时间片</p>
+<h3 id="yield"><a href="#yield" class="headerlink" title="yield()"></a>yield()</h3><p>yield()方法也是类方法,只在当前线程上调用,理由同上,它主是让当前线程放弃本次分配到的时间片。</p>
 <h3 id="synchornized"><a href="#synchornized" class="headerlink" title="synchornized"></a>synchornized</h3><p>把一个单元声明为synchronized,就可以让在同一时间只有一个线程执行该单元块中的代码。</p>
 <p>每个对象有且只有一把监视锁(monitor lock)，一次只能被一个线程获取。当一个线程获取了这一个锁<br>后,这段时间只有这个线程才能执行该synchronized块中代码,其它线程就只能等待这个线程释放锁后才能再获取.</p>
 <pre><code>//对于同步块,synchronized获取的是参数中的对象锁:
