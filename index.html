@@ -721,8 +721,7 @@ thread.bindApplication(processName, appInfo, providers,
     }
 }
 </code></pre><p>方法的开始处先通过ClassLoader加载需要创建的Service类，然后通过newInstance()来实例化。然后接着创建 ContextImpl 对象。然后把ContextImpl对象作为参数调用 service.attach 的方法，进入service.attach方法</p>
-<p>##Service.attach()</p>
-<pre><code>public final void attach(
+<h2 id="Service-attach"><a href="#Service-attach" class="headerlink" title="Service.attach()"></a>Service.attach()</h2><pre><code>public final void attach(
         Context context,
         ActivityThread thread, String className, IBinder token,
         Application application, Object activityManager) {
