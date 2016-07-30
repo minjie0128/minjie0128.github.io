@@ -1,0 +1,1038 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="网上已经有很多篇关于Service启动源码分析的文章，我今天在这里也写下这篇文章，主要是为了在学习的过程中做个总结，便于以后复习查看。源码基于Android版本号15。为什么不选用最新的版本23，因为我觉得越新的版本，加入了越多的噪音代码，反而干扰了源码分析。
+首先在AndroidManifest.xml中通过 android:process=”:remote” 将该Service配置为子进程服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Service 的启动过程的源码分析">
+<meta property="og:url" content="http://yoursite.com/2016/07/30/Android-Service-的启动过程的源码分析/index.html">
+<meta property="og:site_name" content="mike's 学习点滴">
+<meta property="og:description" content="网上已经有很多篇关于Service启动源码分析的文章，我今天在这里也写下这篇文章，主要是为了在学习的过程中做个总结，便于以后复习查看。源码基于Android版本号15。为什么不选用最新的版本23，因为我觉得越新的版本，加入了越多的噪音代码，反而干扰了源码分析。
+首先在AndroidManifest.xml中通过 android:process=”:remote” 将该Service配置为子进程服务">
+<meta property="og:image" content="http://77fzym.com1.z0.glb.clouddn.com/QQ%E5%9B%BE%E7%89%8720160728152244.png">
+<meta property="og:updated_time" content="2016-07-30T04:23:19.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Service 的启动过程的源码分析">
+<meta name="twitter:description" content="网上已经有很多篇关于Service启动源码分析的文章，我今天在这里也写下这篇文章，主要是为了在学习的过程中做个总结，便于以后复习查看。源码基于Android版本号15。为什么不选用最新的版本23，因为我觉得越新的版本，加入了越多的噪音代码，反而干扰了源码分析。
+首先在AndroidManifest.xml中通过 android:process=”:remote” 将该Service配置为子进程服务">
+<meta name="twitter:image" content="http://77fzym.com1.z0.glb.clouddn.com/QQ%E5%9B%BE%E7%89%8720160728152244.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Android Service 的启动过程的源码分析 | mike's 学习点滴 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">mike's 学习点滴</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">小小码农一枚</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android Service 的启动过程的源码分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-30T12:09:58+08:00" content="2016-07-30">
+              2016-07-30
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/30/Android-Service-的启动过程的源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/30/Android-Service-的启动过程的源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>网上已经有很多篇关于Service启动源码分析的文章，我今天在这里也写下这篇文章，主要是为了在学习的过程中做个总结，便于以后复习查看。源码基于Android版本号15。为什么不选用最新的版本23，因为我觉得越新的版本，加入了越多的噪音代码，反而干扰了源码分析。</p>
+<p>首先在AndroidManifest.xml中通过 android:process=”:remote” 将该Service配置为子进程服务，也就是说新开启的Service所在的进程和开启它的应用程序进程不是同一个进程。然后在Activity中通过startService来启动这个Service。</p>
+<h2 id="Activity-startService"><a href="#Activity-startService" class="headerlink" title="Activity.startService()"></a>Activity.startService()</h2><p>由于是在Activity中调用 startService()，所以我们先看看Activity中startService()是如何调用的。首先借助Android Studio来看看调用Activity的继承关系图：<br><img src="http://77fzym.com1.z0.glb.clouddn.com/QQ%E5%9B%BE%E7%89%8720160728152244.png" alt=""></p>
+<p>通过上面的图我们可以看出Activity的父类是ContextThemeWrapper，ContextThemeWrapper的父类是ContextWrapper，ContextWrapper的父类是Context。通过查找我们发现startService方法的定义是在ContextWrapper类中。我们来看看 ContextWrapper类的startService()方法：</p>
+<h2 id="ContextWrapper-startService"><a href="#ContextWrapper-startService" class="headerlink" title="ContextWrapper.startService()"></a>ContextWrapper.startService()</h2><pre><code>@Override
+public ComponentName startService(Intent service) {
+    return mBase.startService(service);
+}
+</code></pre><p>mBase这里指的是ContextImpl类，为什么是ContextImpl类，我会在后面给大家解释。我们来看看ContextImpl的startService()方法：</p>
+<h2 id="ContextImpl-startService"><a href="#ContextImpl-startService" class="headerlink" title="ContextImpl.startService()"></a>ContextImpl.startService()</h2><pre><code>@Override
+public ComponentName startService(Intent service) {
+
+        ...
+        ComponentName cn = ActivityManagerNative.getDefault().startService(
+        mMainThread.getApplicationThread(), service,
+        service.resolveTypeIfNeeded(getContentResolver()));
+        ...
+
+}
+</code></pre><p>上面我省略了一些不重要的代码，只关注核心的代码。ActivityManagerNative.getDefault()返回的是 ActivityManagerProxy对象。参数mMainThread.getApplicationThread()返回ApplicationThread这个对象，ApplicationThread是个Binder对象，这个Binder对象是用来让服务进程和当前应用程序进程通信的，服务端后面就会用这个传递过来的Binder类型参数和客户端进程通信。这里的服务进程指的是ActivityManagerNative对象所在的进程。参数service是一个Intent对象。我们进入到ActivityManagerProxy对象的startService()方法：</p>
+<h2 id="ActivityManagerProxy-startService"><a href="#ActivityManagerProxy-startService" class="headerlink" title="ActivityManagerProxy.startService()"></a>ActivityManagerProxy.startService()</h2><pre><code>public ComponentName startService(IApplicationThread caller, Intent service,
+        String resolvedType) throws RemoteException
+{
+    Parcel data = Parcel.obtain();
+    Parcel reply = Parcel.obtain();
+    data.writeInterfaceToken(IActivityManager.descriptor);
+    data.writeStrongBinder(caller != null ? caller.asBinder() : null);
+    service.writeToParcel(data, 0);
+    data.writeString(resolvedType);
+    mRemote.transact(START_SERVICE_TRANSACTION, data, reply, 0);
+    reply.readException();
+    ComponentName res = ComponentName.readFromParcel(reply);
+    data.recycle();
+    reply.recycle();
+    return res;
+}
+</code></pre><p>这里关于Binder通信的代码，我这里不做介绍。这里我们要知道 ActivityManagerProxy是ActivityManagerNative对象的客户端代理对象。我们通过ActivityManagerProxy这个代理对象的操作最终都会转移到 ActivityManagerNative对象的onTransact方法中。在ActivityManagerNative类的onTransact方法中，有个switch语句</p>
+<h2 id="在ActivityManagerNative-onTransact"><a href="#在ActivityManagerNative-onTransact" class="headerlink" title="在ActivityManagerNative.onTransact()"></a>在ActivityManagerNative.onTransact()</h2><pre><code>public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+      throws RemoteException {
+  switch (code) {
+  case START_ACTIVITY_TRANSACTION:
+  {
+</code></pre><p>通过方法的第一个参数code来找到需要执行的分支，这个code是ActivityManagerProxy类中通过 mRemote.transact(START_SERVICE_TRANSACTION,data,reply,0)传递过来的，所以当前code的值是START_SERVICE_TRANSACTION，我们找到case是 START_SERVICE_TRANSACTION 的分支</p>
+<pre><code>case START_SERVICE_TRANSACTION: {
+        data.enforceInterface(IActivityManager.descriptor);
+        IBinder b = data.readStrongBinder();
+        IApplicationThread app = ApplicationThreadNative.asInterface(b);
+        Intent service = Intent.CREATOR.createFromParcel(data);
+        String resolvedType = data.readString();
+        ComponentName cn = startService(app, service, resolvedType);
+        reply.writeNoException();
+        ComponentName.writeToParcel(cn, reply);
+        return true;
+    }
+</code></pre><p> IApplicationThread app = ApplicationThreadNative.asInterface(b); 这句代码表示把 b这个Binder对象转化成代理对象。然后调用startService(app,service,resolvedType)方法，由于ActivityManagerNative是个虚拟类，这个startService方法是在ActivityManagerNative的子类ActivityManagerService中实现的。进入到ActivityManagerService类的startService方法：</p>
+<h2 id="ActivityManagerServic-startService"><a href="#ActivityManagerServic-startService" class="headerlink" title="ActivityManagerServic.startService()"></a>ActivityManagerServic.startService()</h2><pre><code>public ComponentName startService(IApplicationThread caller, Intent service,
+        String resolvedType) {
+    // Refuse possible leaked file descriptors
+    if (service != null &amp;&amp; service.hasFileDescriptors() == true) {
+        throw new IllegalArgumentException(&quot;File descriptors passed in Intent&quot;);
+    }
+
+    synchronized(this) {
+        final int callingPid = Binder.getCallingPid();
+        final int callingUid = Binder.getCallingUid();
+        final long origId = Binder.clearCallingIdentity();
+        ComponentName res = startServiceLocked(caller, service,
+                resolvedType, callingPid, callingUid);
+        Binder.restoreCallingIdentity(origId);
+        return res;
+    }
+}
+</code></pre><p>这个方法里调用了 startServiceLocked方法，进入到startServiceLocked方法：</p>
+<h2 id="ActivityManagerServic-startServiceLocked"><a href="#ActivityManagerServic-startServiceLocked" class="headerlink" title="ActivityManagerServic.startServiceLocked()"></a>ActivityManagerServic.startServiceLocked()</h2><pre><code>ComponentName startServiceLocked(IApplicationThread caller,
+        Intent service, String resolvedType,
+        int callingPid, int callingUid) {
+    synchronized(this) {
+       。。。
+
+        ServiceLookupResult res =
+            retrieveServiceLocked(service, resolvedType,
+                    callingPid, callingUid);
+        。。。
+
+        if (!bringUpServiceLocked(r, service.getFlags(), false)) {
+            return new ComponentName(&quot;!&quot;, &quot;Service process is bad&quot;);
+        }
+        return r.name;
+
+    }
+}
+</code></pre><p>这里只关注 retrieveServiceLocked 和 bringUpServiceLocked 这2个方法。 先看看 retrieveServiceLocked这个方法：</p>
+<h2 id="ActivityManagerServic-retrieveServiceLocked"><a href="#ActivityManagerServic-retrieveServiceLocked" class="headerlink" title="ActivityManagerServic.retrieveServiceLocked()"></a>ActivityManagerServic.retrieveServiceLocked()</h2><pre><code> private ServiceLookupResult retrieveServiceLocked(Intent service,
+       String resolvedType, int callingPid, int callingUid) {
+               ServiceRecord r = null;
+
+       。。。
+
+       r = new ServiceRecord(this, ss, name, filter, sInfo, res);
+
+       。。。
+       if (checkComponentPermission(r.permission,
+               callingPid, callingUid, r.appInfo.uid, r.exported)
+               != PackageManager.PERMISSION_GRANTED) {
+
+               if (!r.exported) {
+               Slog.w(TAG, &quot;Permission Denial: Accessing service &quot; + r.name
+                       + &quot; from pid=&quot; + callingPid
+                       + &quot;, uid=&quot; + callingUid
+                       + &quot; that is not exported from uid &quot; + r.appInfo.uid);
+               return new ServiceLookupResult(null, &quot;not exported from uid &quot;
+                       + r.appInfo.uid);
+               }
+               Slog.w(TAG, &quot;Permission Denial: Accessing service &quot; + r.name
+                   + &quot; from pid=&quot; + callingPid
+                   + &quot;, uid=&quot; + callingUid
+                   + &quot; requires &quot; + r.permission);
+               return new ServiceLookupResult(null, r.permission);
+         }  
+         return new ServiceLookupResult(r, null);
+   }
+   return null;
+}
+</code></pre><p>retrieveServiceLocked方法中通过 service这个Intent对象生成ServiceRecord对象。ServiceRecord对象代表了客户端Service在服务端ActivityManagerService中的记录。ServiceRecord对象里面记录着客户端Service所在的进程对象，包名等其它对象。 然后通过传递进来的 callingPid 和 callingUid 来判断当前pid和uid是否有权限来访问当前Service。我们再继续看 bringUpServiceLocked方法：</p>
+<h2 id="ActivityManagerServic-bringUpServiceLocked"><a href="#ActivityManagerServic-bringUpServiceLocked" class="headerlink" title="ActivityManagerServic.bringUpServiceLocked()"></a>ActivityManagerServic.bringUpServiceLocked()</h2><pre><code>private final boolean bringUpServiceLocked(ServiceRecord r,
+        int intentFlags, boolean whileRestarting) {
+    。。。
+
+    final String appName = r.processName;
+    ProcessRecord app = getProcessRecordLocked(appName, r.appInfo.uid);
+    if (app != null &amp;&amp; app.thread != null) {
+        try {
+            app.addPackage(r.appInfo.packageName);
+            realStartServiceLocked(r, app);
+            return true;
+        } catch (RemoteException e) {
+
+        }
+
+    }
+
+    // Not running -- get it started, and enqueue this service record
+    // to be executed when the app comes up.
+    if (startProcessLocked(appName, r.appInfo, true, intentFlags,
+            &quot;service&quot;, r.name, false) == null) {
+       。。。
+    }
+
+    if (!mPendingServices.contains(r)) {
+        mPendingServices.add(r);
+    }
+
+    return true;
+</code></pre><p>在bringUpServiceLocked方法中先调用getProcessRecordLocked方法，传递的参数是当前应用的包名和uid(uid是在安装的时候，PackageManagerService来分配的)。通过返回的ProcessRecord对象来判断当前Service所在的进程是否存在，因为在AndroidManifest.xml中通过 android:process=”:remote” 将该Service配置为子进程服务，所以当前Service所在的进程是肯定不存在。接下来通过startProcessLocked这个方法来创建进程来存放需要创建的Service对象。因为等下流程会跳转到客户端中去执行，所在这里需要用mPendingServices这个队列是保存当前未创建的ServiceRecord对象，等待后续继续处理。startProcessLocked方法这里有2个重载，一个是7个参数的，一个是3个参数的。这里先调7个参数的方法，在7个参数的方法中再调用3个参数的方法。这里7个参数方法没有什么这么好看的，这里我们直接进入到3个参数的startProcessLocked方法中：</p>
+<h2 id="ActivityManagerServic-startProcessLocked"><a href="#ActivityManagerServic-startProcessLocked" class="headerlink" title="ActivityManagerServic.startProcessLocked()"></a>ActivityManagerServic.startProcessLocked()</h2><pre><code>private final void startProcessLocked(ProcessRecord app,
+        String hostingType, String hostingNameStr) {
+
+           。。。
+
+        // Start the process.  It will either succeed and return a result containing
+        // the PID of the new process, or else throw a RuntimeException.
+        Process.ProcessStartResult startResult = Process.start(&quot;android.app.ActivityThread&quot;,
+                app.processName, uid, uid, gids, debugFlags,
+                app.info.targetSdkVersion, null);
+
+        。。。
+
+
+        synchronized (mPidsSelfLocked) {
+            this.mPidsSelfLocked.put(startResult.pid, app);
+            。。。
+        }
+
+}
+</code></pre><p>这里关于创建进程的内容超过了本博客的范畴，这里我们只要知道在android中所有的java进程都是通过zygot进程fork出来的。Process.start方法的第一个参数是 “android.app.ActivityThread”。由此我们知道新创建的进程的主线程类是android.app.ActivityThread类。</p>
+<pre><code>this.mPidsSelfLocked.put(startResult.pid, app); 
+</code></pre><p>mPidsSelfLocked是个Map对象，把新创建的进程的pid作为key，进程对象作为value保存在mPidsSelfLocked中，方便下次查询。           </p>
+<p>跟着流程我们进入到android.app.ActivityThread类的入口方法main方法中，这个main方法是新创建的进程的入口。</p>
+<h2 id="ActivityThread-main"><a href="#ActivityThread-main" class="headerlink" title="ActivityThread.main()"></a>ActivityThread.main()</h2><pre><code>public static void main(String[] args) {
+
+    。。。
+
+    Looper.prepareMainLooper();
+
+    。。。
+
+    ActivityThread thread = new ActivityThread();
+    thread.attach(false);
+
+     。。。   
+
+    Looper.loop();
+
+}
+</code></pre><p>Looper.prepareMainLooper(); 是为当前线程创建Looper对象，这就是为什么在主线程中创建Handler对象不需要首先创建Looper对象，因为这里已经创建了。</p>
+<p>然后实例化当前的ActivityThread对象，然后调用attach方法：</p>
+<h2 id="ActivityThread-attach"><a href="#ActivityThread-attach" class="headerlink" title="ActivityThread.attach()"></a>ActivityThread.attach()</h2><pre><code>private void attach(boolean system) {
+    。。。
+    if (!system) {
+        。。。
+        IActivityManager mgr = ActivityManagerNative.getDefault();
+        try {
+            mgr.attachApplication(mAppThread);
+        } catch (RemoteException ex) {
+            // Ignore
+        }
+    } else {
+       。。。
+    }
+
+    。。。
+}
+</code></pre><p>因为syster参数在外面传进来是false,所以会执行 if分支里的代码，前面说过  ActivityManagerNative.getDefault() 返回的是ActivityManagerProxy对象，ActivityManagerProxy是服务端ActivityManagerNative在前端的代理对象，对于ActivityManagerProxy对象的方法调用会通过Binder驱动来调用ActivityManagerNative的onTransact方法。省去中间Binder调用的跳转我们直接进入到ActivityManagerService中的attachApplication方法中：</p>
+<h2 id="ActivityManagerService-attachApplication"><a href="#ActivityManagerService-attachApplication" class="headerlink" title="ActivityManagerService.attachApplication()"></a>ActivityManagerService.attachApplication()</h2><pre><code>    public final void attachApplication(IApplicationThread thread) {
+    synchronized (this) {
+        int callingPid = Binder.getCallingPid();
+        final long origId = Binder.clearCallingIdentity();
+        attachApplicationLocked(thread, callingPid);
+        Binder.restoreCallingIdentity(origId);
+    }
+}
+</code></pre><p>里面调用 attachApplicationLocked(thread, callingPid);  </p>
+<h2 id="ActivityManagerService-attachApplicationLocked"><a href="#ActivityManagerService-attachApplicationLocked" class="headerlink" title="ActivityManagerService.attachApplicationLocked()"></a>ActivityManagerService.attachApplicationLocked()</h2><pre><code>private final boolean attachApplicationLocked(IApplicationThread thread,
+        int pid) {
+
+    // Find the application record that is being attached...  either via
+    // the pid if we are running in multiple processes, or just pull the
+    // next app record if we are emulating process with anonymous threads.
+    ProcessRecord app;
+    if (pid != MY_PID &amp;&amp; pid &gt;= 0) {
+        synchronized (mPidsSelfLocked) {
+            app = mPidsSelfLocked.get(pid);
+        }
+    }
+
+  。。。
+
+
+thread.bindApplication(processName, appInfo, providers,
+        app.instrumentationClass, profileFile, profileFd, profileAutoStop,
+        app.instrumentationArguments, app.instrumentationWatcher, testMode, 
+        isRestrictedBackupMode || !normalMode, app.persistent,
+        new Configuration(mConfiguration), app.compat, getCommonServicesLocked(),
+        mCoreSettingsObserver.getCoreSettingsLocked());
+
+      。。。
+
+    // Find any services that should be running in this process...
+    if (!badApp &amp;&amp; mPendingServices.size() &gt; 0) {
+        ServiceRecord sr = null;
+        try {
+            for (int i=0; i&lt;mPendingServices.size(); i++) {
+                sr = mPendingServices.get(i);
+                if (app.info.uid != sr.appInfo.uid
+                        || !processName.equals(sr.processName)) {
+                    continue;
+                }
+
+                mPendingServices.remove(i);
+                i--;
+                realStartServiceLocked(sr, app);
+
+            }
+        } catch (Exception e) {
+         。。。
+        }
+    }
+
+ 。。。
+
+    return true;
+} 
+</code></pre><p>先通过传递进来的pid参数在mPidsSelfLocked这个Map中找到对应的ProcessRecord对象。attachApplicationLocked方法里面调用了2个重要的方法，thread.bindApplication() 和 realStartServiceLocked()。我们先看看thread.bindApplication()方法，这里的thread是一个实现了IApplicationThread接口的对象，实际上是ApplicationThreadProxy对象，这个对象也是个Binder代理对象，调用它的方法会通过Binder驱动会调用到ApplicationThreadNative对象的onTransact()方法中去。ApplicationThreadNative和ActivityManagerNative一样，也是个抽象类，ApplicationThreadNative里面的抽象方法是在ApplicationThread类里面实现的。省去中间Binder调用的步骤，直接进入到ApplicationThread类的bindApplication方法里面,ApplicationThread类是ActivityThread的内部类。</p>
+<h2 id="ApplicationThread-bindApplication"><a href="#ApplicationThread-bindApplication" class="headerlink" title="ApplicationThread.bindApplication()"></a>ApplicationThread.bindApplication()</h2><pre><code>public final void bindApplication(String processName,
+            ApplicationInfo appInfo, List&lt;ProviderInfo&gt; providers,
+            ComponentName instrumentationName, String profileFile,
+            ParcelFileDescriptor profileFd, boolean autoStopProfiler,
+            Bundle instrumentationArgs, IInstrumentationWatcher instrumentationWatcher,
+            int debugMode, boolean isRestrictedBackupMode, boolean persistent,
+            Configuration config, CompatibilityInfo compatInfo,
+            Map&lt;String, IBinder&gt; services, Bundle coreSettings) {
+
+        if (services != null) {
+            // Setup the service cache in the ServiceManager
+            ServiceManager.initServiceCache(services);
+        }
+
+        setCoreSettings(coreSettings);
+
+        AppBindData data = new AppBindData();
+        data.processName = processName;
+        data.appInfo = appInfo;
+        data.providers = providers;
+        data.instrumentationName = instrumentationName;
+        data.instrumentationArgs = instrumentationArgs;
+        data.instrumentationWatcher = instrumentationWatcher;
+        data.debugMode = debugMode;
+        data.restrictedBackupMode = isRestrictedBackupMode;
+        data.persistent = persistent;
+        data.config = config;
+        data.compatInfo = compatInfo;
+        data.initProfileFile = profileFile;
+        data.initProfileFd = profileFd;
+        data.initAutoStopProfiler = false;
+        queueOrSendMessage(H.BIND_APPLICATION, data);
+    }
+</code></pre><p>通过queueOrSendMessage方法，把AppBindData对象放到主线程的消息队列中去，H是定义在ActivityThread类里面的一个Handler对象，进入到H的handleMessage方法中去，找到case是 H.BIND_APPLICATION 的switch分支：</p>
+<pre><code>case BIND_APPLICATION:
+                AppBindData data = (AppBindData)msg.obj;
+                handleBindApplication(data);
+                break;
+</code></pre><p>进入到ActivityThread类的handleBindApplication方法里面去</p>
+<h2 id="ActivityThread-handleBindApplication"><a href="#ActivityThread-handleBindApplication" class="headerlink" title="ActivityThread.handleBindApplication()"></a>ActivityThread.handleBindApplication()</h2><pre><code>private void handleBindApplication(AppBindData data) {
+
+    。。。
+
+    // If the app is being launched for full backup or restore, bring it up in
+    // a restricted environment with the base application class.
+    Application app = data.info.makeApplication(data.restrictedBackupMode, null);
+
+
+    try {
+        mInstrumentation.callApplicationOnCreate(app);
+    } catch (Exception e) {
+
+    }
+}
+</code></pre><p>data.info 是一个LoadedApk对象，进入到LoadedApk类的makeApplication方法</p>
+<h2 id="LoadedApk-makeApplication"><a href="#LoadedApk-makeApplication" class="headerlink" title="LoadedApk.makeApplication()"></a>LoadedApk.makeApplication()</h2><pre><code>public Application makeApplication(boolean forceDefaultAppClass,
+        Instrumentation instrumentation) {
+    if (mApplication != null) {
+        return mApplication;
+    }
+
+    Application app = null;
+
+     String appClass = mApplicationInfo.className;
+    if (forceDefaultAppClass || (appClass == null)) {
+        appClass = &quot;android.app.Application&quot;;
+    }
+
+    try {
+        java.lang.ClassLoader cl = getClassLoader();
+        ContextImpl appContext = new ContextImpl();
+        appContext.init(this, null, mActivityThread);
+        app = mActivityThread.mInstrumentation.newApplication(
+                cl, appClass, appContext);
+        appContext.setOuterContext(app);
+    } catch (Exception e) {
+        if (!mActivityThread.mInstrumentation.onException(app, e)) {
+            throw new RuntimeException(
+                &quot;Unable to instantiate application &quot; + appClass
+                + &quot;: &quot; + e.toString(), e);
+        }
+    }
+
+    mApplication = app;
+
+    return app;
+}
+</code></pre><p>方法的开始处判断当前应用程序的Application对象是否已经创建，如果已经创建了直接返回。appClass代表的是在清单文件中配置的Application对象，如果没有指定就使用默认的android.app.Application类，通过getClassLoader()方法获得的ClassLoad来加载Application类。我们返回到上面的handleBindApplication方法，接着看下面的</p>
+<pre><code>try {
+        mInstrumentation.callApplicationOnCreate(app);
+    } catch (Exception e) {
+
+    }
+</code></pre><p>mInstrumentation是Instrumentation对象。对Application和Activity对象的生命周期的控制都是通过这个Instrumentation类来进行的。网上有人说Instrumentation的作用类似一个管家。进入到Instrumentation类的callApplicationOnCreate方法里面</p>
+<h2 id="Instrumentation-callApplicationOnCreate"><a href="#Instrumentation-callApplicationOnCreate" class="headerlink" title="Instrumentation.callApplicationOnCreate()"></a>Instrumentation.callApplicationOnCreate()</h2><pre><code>public void callApplicationOnCreate(Application app) {
+    app.onCreate();
+}
+</code></pre><p>这个方法非常简单，就一段代码，就是调用app.onCreate()方法。从handleBindApplication这个方法开始的几个流程我们看出这个方法就是创建当前应用进程的Application对象然后调用这个对象的onCreate()方法。<strong>由于Binder通信是阻塞的，所以app.onCreate()方法里不应该做一些耗时的操作</strong>。我们接着返回到ActivityManagerService对象的attachApplicationLocked方法里面，我们已经讲完了thread.bindApplication这个步骤，接着看realStartServiceLocked这个方法的调用过程。realStartServiceLocked(sr,app)方法的第一个参数sr是一个ServiceRecord对象。这个sr来自于mPendingServices这个ArrayList对象里面，前面说过mPendingServices队列保存了待处理的ServiceRecord对象。我们进入到realStartServiceLocked方面里面</p>
+<h2 id="ActivityManagerService-realStartServiceLocked"><a href="#ActivityManagerService-realStartServiceLocked" class="headerlink" title="ActivityManagerService.realStartServiceLocked()"></a>ActivityManagerService.realStartServiceLocked()</h2><pre><code>    private final void realStartServiceLocked(ServiceRecord r,
+        ProcessRecord app) throws RemoteException {
+
+        。。。
+
+    try {
+
+      。。。
+
+        app.thread.scheduleCreateService(r, r.serviceInfo,
+                compatibilityInfoForPackageLocked(r.serviceInfo.applicationInfo));
+
+    } finally {
+
+    }
+
+}
+</code></pre><p>这里面最重要的一句话 </p>
+<pre><code>app.thread.scheduleCreateService(r, r.serviceInfo,
+                compatibilityInfoForPackageLocked(r.serviceInfo.applicationInfo));
+</code></pre><p>这也是一个Binder通信。通过上面的解释我们知道这个Binder通信最终会调用到ApplicationThread类里面的方法，我们省去中间调用的步骤，直接进入到 ApplicationThread类的scheduleCreateService方法</p>
+<h2 id="ApplicationThread-scheduleCreateService"><a href="#ApplicationThread-scheduleCreateService" class="headerlink" title="ApplicationThread.scheduleCreateService()"></a>ApplicationThread.scheduleCreateService()</h2><pre><code>public final void scheduleCreateService(IBinder token,
+            ServiceInfo info, CompatibilityInfo compatInfo) {
+        CreateServiceData s = new CreateServiceData();
+        s.token = token;
+        s.info = info;
+        s.compatInfo = compatInfo;
+
+        queueOrSendMessage(H.CREATE_SERVICE, s);
+    }
+</code></pre><p>这里面是一个Handler通信。我们直接进入到H对象handleMessage方法中，找到case是H.CREATE_SERVICE的分支</p>
+<pre><code>case CREATE_SERVICE:
+                handleCreateService((CreateServiceData)msg.obj);
+                break;
+</code></pre><p>这里没调用了 handleCreateService方法，进入到handleCreateService方法</p>
+<h2 id="ActivityThread-handleCreateService"><a href="#ActivityThread-handleCreateService" class="headerlink" title="ActivityThread.handleCreateService()"></a>ActivityThread.handleCreateService()</h2><pre><code>private void handleCreateService(CreateServiceData data) {
+
+
+    try {
+        java.lang.ClassLoader cl = packageInfo.getClassLoader();
+        service = (Service) cl.loadClass(data.info.name).newInstance();
+    } catch (Exception e) {
+        if (!mInstrumentation.onException(service, e)) {
+            throw new RuntimeException(
+                &quot;Unable to instantiate service &quot; + data.info.name
+                + &quot;: &quot; + e.toString(), e);
+        }
+    }
+
+    try {
+
+        ContextImpl context = new ContextImpl();
+        context.init(packageInfo, null, this);
+
+
+        context.setOuterContext(service);
+        service.attach(context, this, data.info.name, data.token, app,
+                ActivityManagerNative.getDefault());
+        service.onCreate();
+        mServices.put(data.token, service);
+        。。。
+    } catch (Exception e) {
+        if (!mInstrumentation.onException(service, e)) {
+            throw new RuntimeException(
+                &quot;Unable to create service &quot; + data.info.name
+                + &quot;: &quot; + e.toString(), e);
+        }
+    }
+}
+</code></pre><p>方法的开始处先通过ClassLoader加载需要创建的Service类，然后通过newInstance()来实例化。然后接着创建 ContextImpl 对象。然后把ContextImpl对象作为参数调用 service.attach 的方法，进入service.attach方法</p>
+<p>##Service.attach()</p>
+<pre><code>public final void attach(
+        Context context,
+        ActivityThread thread, String className, IBinder token,
+        Application application, Object activityManager) {
+    attachBaseContext(context);
+    mThread = thread;           // NOTE:  unused - remove?
+    mClassName = className;
+    mToken = token;
+    mApplication = application;
+    mActivityManager = (IActivityManager)activityManager;
+    mStartCompatibility = getApplicationInfo().targetSdkVersion &lt; Build.VERSION_CODES.ECLAIR;
+
+}
+</code></pre><p>通过传进来的参数对Service对象进行初始化操作。方法里面调用了 attachBaseContext(context); 方法，我们进入到attachBaseContext方法</p>
+<h2 id="ContextWrapper-attachBaseContext"><a href="#ContextWrapper-attachBaseContext" class="headerlink" title="ContextWrapper.attachBaseContext()"></a>ContextWrapper.attachBaseContext()</h2><pre><code>protected void attachBaseContext(Context base) {
+    if (mBase != null) {
+        throw new IllegalStateException(&quot;Base context already set&quot;);
+    }
+    mBase = base;
+}
+</code></pre><p>这个方法的定义是在Service的父类ContextWrapper中定义的。把base参数赋值给mBase这个变量。这个base就是ContextImpl对象。这就解释我在文章一开始处留下的问题。我们接着返回到 handleCreateService方法中，调用了Service的attach方法之后，接着调用了Service的onCreate方法。然后把CreateServiceData参数的token字段作为key，service作为value保存到mServices这个字典中。</p>
+<p>到此，基本上已经把Service的启动过程分析完了。</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/23/Smali学习笔记/" rel="next" title="Smali学习笔记">
+                <i class="fa fa-chevron-left"></i> Smali学习笔记
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/30/Android-Service-的启动过程的源码分析/"
+           data-title="Android Service 的启动过程的源码分析" data-url="http://yoursite.com/2016/07/30/Android-Service-的启动过程的源码分析/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="mike" />
+          <p class="site-author-name" itemprop="name">mike</p>
+          <p class="site-description motion-element" itemprop="description">android , java</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity-startService"><span class="nav-number">1.</span> <span class="nav-text">Activity.startService()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ContextWrapper-startService"><span class="nav-number">2.</span> <span class="nav-text">ContextWrapper.startService()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ContextImpl-startService"><span class="nav-number">3.</span> <span class="nav-text">ContextImpl.startService()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerProxy-startService"><span class="nav-number">4.</span> <span class="nav-text">ActivityManagerProxy.startService()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在ActivityManagerNative-onTransact"><span class="nav-number">5.</span> <span class="nav-text">在ActivityManagerNative.onTransact()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerServic-startService"><span class="nav-number">6.</span> <span class="nav-text">ActivityManagerServic.startService()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerServic-startServiceLocked"><span class="nav-number">7.</span> <span class="nav-text">ActivityManagerServic.startServiceLocked()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerServic-retrieveServiceLocked"><span class="nav-number">8.</span> <span class="nav-text">ActivityManagerServic.retrieveServiceLocked()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerServic-bringUpServiceLocked"><span class="nav-number">9.</span> <span class="nav-text">ActivityManagerServic.bringUpServiceLocked()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerServic-startProcessLocked"><span class="nav-number">10.</span> <span class="nav-text">ActivityManagerServic.startProcessLocked()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityThread-main"><span class="nav-number">11.</span> <span class="nav-text">ActivityThread.main()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityThread-attach"><span class="nav-number">12.</span> <span class="nav-text">ActivityThread.attach()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerService-attachApplication"><span class="nav-number">13.</span> <span class="nav-text">ActivityManagerService.attachApplication()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerService-attachApplicationLocked"><span class="nav-number">14.</span> <span class="nav-text">ActivityManagerService.attachApplicationLocked()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ApplicationThread-bindApplication"><span class="nav-number">15.</span> <span class="nav-text">ApplicationThread.bindApplication()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityThread-handleBindApplication"><span class="nav-number">16.</span> <span class="nav-text">ActivityThread.handleBindApplication()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LoadedApk-makeApplication"><span class="nav-number">17.</span> <span class="nav-text">LoadedApk.makeApplication()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Instrumentation-callApplicationOnCreate"><span class="nav-number">18.</span> <span class="nav-text">Instrumentation.callApplicationOnCreate()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManagerService-realStartServiceLocked"><span class="nav-number">19.</span> <span class="nav-text">ActivityManagerService.realStartServiceLocked()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ApplicationThread-scheduleCreateService"><span class="nav-number">20.</span> <span class="nav-text">ApplicationThread.scheduleCreateService()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityThread-handleCreateService"><span class="nav-number">21.</span> <span class="nav-text">ActivityThread.handleCreateService()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ContextWrapper-attachBaseContext"><span class="nav-number">22.</span> <span class="nav-text">ContextWrapper.attachBaseContext()</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mike</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"MINJIE1"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
