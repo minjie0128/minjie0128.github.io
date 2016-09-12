@@ -83,7 +83,8 @@
 <meta name="description" content="Java中代理分为2种， 静态代理和动态代理。
 静态代理
 从图中可以看出，代理对象是客户端和真实对象之间的桥梁。代理对象要实现真实对象的所有公开方法（或者接口），而且当真实对象的接口修改的时候，代理对象也要做修改。而且在构造代理对象的时候，必须要知道真实对象。就是说代理对象和真实对象在编译时就已经绑定了。
-动态代理代理类获知或者被告知真实对象的类型、接口列表时，代理可以根据反射构造出真实对象来，进">
+动态代理先来看一个简单的demo
+12345678910111213141516171819">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java 动态代理学习">
 <meta property="og:url" content="http://yoursite.com/2016/05/05/java-动态代理学习/index.html">
@@ -91,16 +92,17 @@
 <meta property="og:description" content="Java中代理分为2种， 静态代理和动态代理。
 静态代理
 从图中可以看出，代理对象是客户端和真实对象之间的桥梁。代理对象要实现真实对象的所有公开方法（或者接口），而且当真实对象的接口修改的时候，代理对象也要做修改。而且在构造代理对象的时候，必须要知道真实对象。就是说代理对象和真实对象在编译时就已经绑定了。
-动态代理代理类获知或者被告知真实对象的类型、接口列表时，代理可以根据反射构造出真实对象来，进">
+动态代理先来看一个简单的demo
+12345678910111213141516171819">
 <meta property="og:image" content="http://77fzym.com1.z0.glb.clouddn.com/proxy.png">
-<meta property="og:image" content="http://77fzym.com1.z0.glb.clouddn.com/a.png">
-<meta property="og:updated_time" content="2016-05-25T12:14:09.424Z">
+<meta property="og:updated_time" content="2016-09-12T14:18:18.729Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 动态代理学习">
 <meta name="twitter:description" content="Java中代理分为2种， 静态代理和动态代理。
 静态代理
 从图中可以看出，代理对象是客户端和真实对象之间的桥梁。代理对象要实现真实对象的所有公开方法（或者接口），而且当真实对象的接口修改的时候，代理对象也要做修改。而且在构造代理对象的时候，必须要知道真实对象。就是说代理对象和真实对象在编译时就已经绑定了。
-动态代理代理类获知或者被告知真实对象的类型、接口列表时，代理可以根据反射构造出真实对象来，进">
+动态代理先来看一个简单的demo
+12345678910111213141516171819">
 <meta name="twitter:image" content="http://77fzym.com1.z0.glb.clouddn.com/proxy.png">
 
 
@@ -289,31 +291,13 @@
         <p>Java中代理分为2种， 静态代理和动态代理。</p>
 <h2 id="静态代理"><a href="#静态代理" class="headerlink" title="静态代理"></a>静态代理</h2><p><img src="http://77fzym.com1.z0.glb.clouddn.com/proxy.png" alt=""></p>
 <p>从图中可以看出，代理对象是客户端和真实对象之间的桥梁。代理对象要实现真实对象的所有公开方法（或者接口），而且当真实对象的接口修改的时候，代理对象也要做修改。而且在构造代理对象的时候，必须要知道真实对象。就是说代理对象和真实对象在编译时就已经绑定了。</p>
-<h2 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h2><p>代理类获知或者被告知真实对象的类型、接口列表时，代理可以根据反射构造出真实对象来，进而调用真实对象的相应方法，这就是动态代理：<strong>代理类在编译时不需要知道具体要代理哪个真实对象，只有到了运行时才知道</strong>。</p>
-<p>案例参考 <a href="http://www.cnblogs.com/flyoung2008/archive/2013/08/11/3251148.html" target="_blank" rel="external">http://www.cnblogs.com/flyoung2008/archive/2013/08/11/3251148.html</a></p>
-<h3 id="Java字节码生成开源框架介绍–Javassist"><a href="#Java字节码生成开源框架介绍–Javassist" class="headerlink" title="Java字节码生成开源框架介绍–Javassist"></a><strong>Java字节码生成开源框架介绍–Javassist</strong></h3><p>Javassist是一个开源的分析、编辑和创建Java字节码的类库。是由东京工业大学的数学和计算机科学系的 Shigeru Chiba （千叶 滋）所创建的。它已加入了开放源代码JBoss 应用服务器项目,通过使用Javassist对字节码操作为JBoss实现动态AOP框架。javassist是<a href="http://baike.baidu.com/view/309533.htm" target="_blank" rel="external">jboss</a>的一个子项目，其主要的优点，在于简单，而且快速。直接使用java编码的形式，而不需要了解虚拟机(但是ASM需要了解虚拟机指令)指令，就能动态改变类的结构，或者动态生成类。</p>
-<pre><code>import javassist.ClassPool;  
-import javassist.CtClass;  
-import javassist.CtMethod;  
-import javassist.CtNewMethod;  
-public class MyGenerator {  
-
-    public static void main(String[] args) throws Exception {  
-        ClassPool pool = ClassPool.getDefault();  
-        //创建Programmer类       
-        CtClass cc= pool.makeClass(&quot;com.samples.Programmer&quot;);  
-        //定义code方法  
-        CtMethod method = CtNewMethod.make(&quot;public void code(){}&quot;, cc);  
-        //插入方法代码  
-        method.insertBefore(&quot;System.out.println(\&quot;I&apos;m a Programmer,Just Coding.....\&quot;);&quot;);  
-        cc.addMethod(method);  
-        //保存生成的字节码  
-        cc.writeFile(&quot;d://temp&quot;);  
-    }  
-}  
-</code></pre><p>通过JD-gui反编译工具打开Programmer.class 可以看到以下代码：</p>
-<p><img src="http://77fzym.com1.z0.glb.clouddn.com/a.png" alt=""></p>
-<h3 id="动态代理的内部实现"><a href="#动态代理的内部实现" class="headerlink" title="动态代理的内部实现"></a>动态代理的内部实现</h3><p>动态代理就是根据代理类实现的接口来动态生成class文件，然后根据这个class文件动态生成代理对象。</p>
+<h2 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h2><p>先来看一个简单的demo</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public interface Subject&#123;      </span><br><span class="line">  public void doSomething();   </span><br><span class="line">&#125;   </span><br><span class="line"></span><br><span class="line">public class RealSubject implements Subject&#123;</span><br><span class="line">  public void doSomething()&#123;</span><br><span class="line">    System.out.println( &quot;call doSomething()&quot; );   </span><br><span class="line">  &#125;   </span><br><span class="line">&#125;   </span><br><span class="line"></span><br><span class="line">public class ProxyHandler implements InvocationHandler&#123;</span><br><span class="line">  private Object proxied;   </span><br><span class="line">     </span><br><span class="line">  public ProxyHandler( Object proxied ) &#123; </span><br><span class="line">    this.proxied = proxied;   </span><br><span class="line">  &#125;   </span><br><span class="line">     </span><br><span class="line">  public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable&#123;</span><br><span class="line">    //在转调具体目标对象之前，可以执行一些功能处理</span><br><span class="line"></span><br><span class="line">    //转调具体目标对象的方法</span><br><span class="line">    return method.invoke( proxied, args);  </span><br><span class="line">    </span><br><span class="line">    //在转调具体目标对象之后，可以执行一些功能处理</span><br><span class="line">  &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如何使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public static void main( String args[] )&#123;</span><br><span class="line">   RealSubject real = new RealSubject();   </span><br><span class="line">   Subject proxySubject = (Subject)Proxy.newProxyInstance(Subject.class.getClassLoader(), </span><br><span class="line">   	new Class[]&#123;Subject.class&#125;, </span><br><span class="line">   	new ProxyHandler(real)</span><br><span class="line">   );</span><br><span class="line">       </span><br><span class="line">   proxySubject.doSomething();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代理类获知或者被告知真实对象的类型、接口列表时，代理可以根据反射构造出真实对象来，进而调用真实对象的相应方法，这就是动态代理。<strong>代理类在定义时不需要知道具体要代理哪个真实对象，我们在运行时告诉代理类这些好了</strong>。</p>
+<p><strong>动态代理的内部实现</strong></p>
+<p>动态代理就是根据代理类实现的接口来动态生成class文件，然后根据这个class文件动态生成代理对象。</p>
 <p>生成动态代理类的字节码并且保存到硬盘中：</p>
 <p>JDK提供了<strong>sun.misc.ProxyGenerator.generateProxyClass(String proxyName,class[] interfaces)</strong> 底层方法来产生动态代理类的字节码：</p>
 <p>下面定义了一个工具类，用来将生成的动态代理类保存到硬盘中：</p>
@@ -329,8 +313,7 @@ public class ProxyUtils {
      * params :clazz 需要生成动态代理类的类
      * proxyName : 为动态生成的代理类的名称
     &amp;nbsp;*/
-public static void generateClassFile(Class clazz,String proxyName)
-{
+public static void generateClassFile(Class clazz,String proxyName){
     //根据类信息和提供的代理类名称，生成字节码
     byte[] classFile =ProxyGenerator.generateProxyClass(proxyName, clazz.getInterfaces()); 
     String paths = clazz.getResource(&quot;.&quot;).getPath();
@@ -442,7 +425,9 @@ public final class ProxySubject extends Proxy  implements Subject
 }
 </code></pre><p>我们可以看到动态生成的ProxySubject 是继承Proxy类的。这就是<br><strong>为什么只能通过接口类来生成动态代理，而不是类来实现，因为java不支持多继承</strong>。<br>通过反编译之后的代码，我们可以看出调用代理类的一个方法时，代理类的方法会调用InvocationHandler的invoke方法，然后invoke方法再调用被代理对象的方法，所以我们在InvocationHandler的invoke方法的方法里做一些其它的处理操作，比如添加日志等等。</p>
 <p>参考</p>
-<p> <a href="http://blog.csdn.net/luanlouis/article/details/24589193" target="_blank" rel="external">http://blog.csdn.net/luanlouis/article/details/24589193</a></p>
+<p><a href="http://www.cnblogs.com/linjiqin/archive/2011/02/18/1957600.html" target="_blank" rel="external">http://www.cnblogs.com/linjiqin/archive/2011/02/18/1957600.html</a></p>
+<p><a href="http://www.cnblogs.com/flyoung2008/archive/2013/08/11/3251148.html" target="_blank" rel="external">http://www.cnblogs.com/flyoung2008/archive/2013/08/11/3251148.html</a></p>
+<p><a href="http://blog.csdn.net/luanlouis/article/details/24589193" target="_blank" rel="external">http://blog.csdn.net/luanlouis/article/details/24589193</a></p>
 
       
     </div>
@@ -591,7 +576,7 @@ public final class ProxySubject extends Proxy  implements Subject
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#静态代理"><span class="nav-number">1.</span> <span class="nav-text">静态代理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态代理"><span class="nav-number">2.</span> <span class="nav-text">动态代理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java字节码生成开源框架介绍–Javassist"><span class="nav-number">2.1.</span> <span class="nav-text">Java字节码生成开源框架介绍–Javassist</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态代理的内部实现"><span class="nav-number">2.2.</span> <span class="nav-text">动态代理的内部实现</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#静态代理"><span class="nav-number">1.</span> <span class="nav-text">静态代理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态代理"><span class="nav-number">2.</span> <span class="nav-text">动态代理</span></a></li></ol></div>
             
           </div>
         </section>
