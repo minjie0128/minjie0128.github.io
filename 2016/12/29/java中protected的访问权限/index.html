@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="mike's 学习点滴">
 <meta property="og:description" content="今天在网上看了一下java中protected修饰符的访问权限，原本以为很简单的基础知识，后来发现我有的地方了解是有点偏差的。现在在此做一下简单的总结。
 如果包A中的类People定义一个protected方法say，那么在包B中的Man类中是不能访问这个People对象的say方法的，即使包B中的Man类是People类的子类也不行。但是包B中的People类的子类Man类是可以访问继承与Peo">
-<meta property="og:updated_time" content="2016-12-29T13:09:06.126Z">
+<meta property="og:updated_time" content="2016-12-29T13:13:35.897Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java中protected的访问权限">
 <meta name="twitter:description" content="今天在网上看了一下java中protected修饰符的访问权限，原本以为很简单的基础知识，后来发现我有的地方了解是有点偏差的。现在在此做一下简单的总结。
@@ -285,7 +285,7 @@
         new People().say();//但是不可以这样调用
     }
 }
-</code></pre><p>如果同一个包中2个类，即使这2个类没有继承关系，但是可以在类A中访问类B的protected方法。</p>
+</code></pre><p>如果同一个包中2个类，即使这2个类没有继承关系，但是可以在类A中访问类B的protected方法。(也就是protected修饰符修饰的字段和方法对同一个包中的其它类是可见的)</p>
 <p>还有object类中的clone方法也是protected的。如果在clone一个对象的时候，要在这个对象的类中override clone方法，并将其访问修饰符改为public，不然其它对象无法调用该对象的clone方法的。</p>
 <p>java之所以这么设计我觉得是提供一种介于private和public这2种修饰符之间的一种权限。让处于同一个包的中对象可以访问，但是不让外面第三方的对象访问。</p>
 
