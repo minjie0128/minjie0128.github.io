@@ -229,6 +229,117 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/29/java中protected的访问权限/" itemprop="url">
+                  java中protected的访问权限
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-29T20:06:52+08:00" content="2016-12-29">
+              2016-12-29
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/29/java中protected的访问权限/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/29/java中protected的访问权限/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今天在网上看了一下java中protected修饰符的访问权限，原本以为很简单的基础知识，后来发现我有的地方了解是有点偏差的。现在在此做一下简单的总结。</p>
+<p>如果包A中的类People定义一个protected方法say，那么在包B中的Man类中是不能访问这个People对象的say方法的，即使包B中的Man类是People类的子类也不行。但是包B中的People类的子类Man类是可以访问继承与People中的say方法的。举例如下：</p>
+<pre><code>class Man extends People{
+    public Man(){
+        say();//可以这样调用
+        new People().say();//但是不可以这样调用
+    }
+}
+</code></pre><p>如果同一个包中2个类，即使这2个类没有继承关系，但是可以在类A中访问类B的protected方法。</p>
+<p>还有object类中的clone方法也是protected的。如果在clone一个对象的时候，要在这个对象的类中override clone方法，并将其访问修饰符改为public，不然其它对象无法调用该对象的clone方法的。</p>
+<p>java之所以这么设计我觉得是提供一种介于private和public这2种修饰符之间的一种权限。让处于同一个包的中对象可以访问，但是不让外面第三方的对象访问。</p>
+
+          
+        
+      
+    </div>
+    
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/03/基于源码来了解Android的事件分发机制/" itemprop="url">
                   基于源码来了解Android的事件分发机制
                 </a>
@@ -2775,110 +2886,13 @@ public final class ProxySubject extends Proxy  implements Subject
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/04/12/我的第一篇hexo博客/" itemprop="url">
-                  我的第一篇hexo博客
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-04-12T13:31:42+08:00" content="2016-04-12">
-              2016-04-12
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/04/12/我的第一篇hexo博客/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/12/我的第一篇hexo博客/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>终于把hexo搭建好了，以后就可以用这个写博客了 !!!</p>
-
-          
-        
-      
-    </div>
-    
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -2917,7 +2931,7 @@ public final class ProxySubject extends Proxy  implements Subject
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-count">11</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
